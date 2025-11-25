@@ -1232,21 +1232,8 @@ void Thread::_start_func(void *ud) {
 }
 
 Error Thread::start(const Callable &p_callable, Priority p_priority) {
-	ERR_FAIL_COND_V_MSG(is_started(), ERR_ALREADY_IN_USE, "Thread already started.");
-	ERR_FAIL_COND_V(!p_callable.is_valid(), ERR_INVALID_PARAMETER);
-	ERR_FAIL_INDEX_V(p_priority, PRIORITY_MAX, ERR_INVALID_PARAMETER);
-
-	ret = Variant();
-	target_callable = p_callable;
-	running.set();
-
-	Ref<Thread> *ud = memnew(Ref<Thread>(this));
-
-	::Thread::Settings s;
-	s.priority = (::Thread::Priority)p_priority;
-	thread.start(_start_func, ud, s);
-
-	return OK;
+	// Thread creation disabled for security - prevents resource-intensive attacks
+	ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Thread creation is disabled in this build for security reasons.");
 }
 
 String Thread::get_id() const {
