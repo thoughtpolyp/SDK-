@@ -109,46 +109,18 @@ GDExtensionManager::LoadStatus GDExtensionManager::_unload_extension_internal(co
 }
 
 GDExtensionManager::LoadStatus GDExtensionManager::load_extension(const String &p_path) {
-	if (Engine::get_singleton()->is_recovery_mode_hint()) {
-		return LOAD_STATUS_FAILED;
-	}
-
-	Ref<GDExtensionLibraryLoader> loader;
-	loader.instantiate();
-	return load_extension_with_loader(p_path, loader);
+	// GDExtension loading disabled for security - GDScript only SDK
+	ERR_FAIL_V_MSG(LOAD_STATUS_FAILED, "GDExtension loading is disabled in this build for security reasons.");
 }
 
 GDExtensionManager::LoadStatus GDExtensionManager::load_extension_from_function(const String &p_path, GDExtensionConstPtr<const GDExtensionInitializationFunction> p_init_func) {
-	Ref<GDExtensionFunctionLoader> func_loader;
-	func_loader.instantiate();
-	func_loader->set_initialization_function((GDExtensionInitializationFunction)*p_init_func.data);
-	return load_extension_with_loader(p_path, func_loader);
+	// GDExtension loading disabled for security - GDScript only SDK
+	ERR_FAIL_V_MSG(LOAD_STATUS_FAILED, "GDExtension loading is disabled in this build for security reasons.");
 }
 
 GDExtensionManager::LoadStatus GDExtensionManager::load_extension_with_loader(const String &p_path, const Ref<GDExtensionLoader> &p_loader) {
-	DEV_ASSERT(p_loader.is_valid());
-
-	if (gdextension_map.has(p_path)) {
-		return LOAD_STATUS_ALREADY_LOADED;
-	}
-
-	Ref<GDExtension> extension;
-	extension.instantiate();
-	Error err = extension->open_library(p_path, p_loader);
-	if (err != OK) {
-		return LOAD_STATUS_FAILED;
-	}
-
-	LoadStatus status = _load_extension_internal(extension, true);
-	if (status != LOAD_STATUS_OK) {
-		return status;
-	}
-
-	_finish_load_extension(extension);
-
-	extension->set_path(p_path);
-	gdextension_map[p_path] = extension;
-	return LOAD_STATUS_OK;
+	// GDExtension loading disabled for security - GDScript only SDK
+	ERR_FAIL_V_MSG(LOAD_STATUS_FAILED, "GDExtension loading is disabled in this build for security reasons.");
 }
 
 GDExtensionManager::LoadStatus GDExtensionManager::reload_extension(const String &p_path) {
