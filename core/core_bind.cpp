@@ -356,24 +356,6 @@ String OS::get_executable_path() const {
 	return ::OS::get_singleton()->get_executable_path();
 }
 
-Error OS::shell_open(const String &p_uri) {
-	if (p_uri.begins_with("res://")) {
-		WARN_PRINT("Attempting to open an URL with the \"res://\" protocol. Use `ProjectSettings.globalize_path()` to convert a Godot-specific path to a system path before opening it with `OS.shell_open()`.");
-	} else if (p_uri.begins_with("user://")) {
-		WARN_PRINT("Attempting to open an URL with the \"user://\" protocol. Use `ProjectSettings.globalize_path()` to convert a Godot-specific path to a system path before opening it with `OS.shell_open()`.");
-	}
-	return ::OS::get_singleton()->shell_open(p_uri);
-}
-
-Error OS::shell_show_in_file_manager(const String &p_path, bool p_open_folder) {
-	if (p_path.begins_with("res://")) {
-		WARN_PRINT("Attempting to explore file path with the \"res://\" protocol. Use `ProjectSettings.globalize_path()` to convert a Godot-specific path to a system path before opening it with `OS.shell_show_in_file_manager()`.");
-	} else if (p_path.begins_with("user://")) {
-		WARN_PRINT("Attempting to explore file path with the \"user://\" protocol. Use `ProjectSettings.globalize_path()` to convert a Godot-specific path to a system path before opening it with `OS.shell_show_in_file_manager()`.");
-	}
-	return ::OS::get_singleton()->shell_show_in_file_manager(p_path, p_open_folder);
-}
-
 String OS::read_string_from_stdin(int64_t p_buffer_size) {
 	return ::OS::get_singleton()->get_stdin_string(p_buffer_size);
 }
@@ -394,70 +376,6 @@ OS::StdHandleType OS::get_stderr_type() const {
 	return (OS::StdHandleType)::OS::get_singleton()->get_stderr_type();
 }
 
-int OS::execute(const String &p_path, const Vector<String> &p_arguments, Array r_output, bool p_read_stderr, bool p_open_console) {
-	List<String> args;
-	for (const String &arg : p_arguments) {
-		args.push_back(arg);
-	}
-	String pipe;
-	int exitcode = 0;
-	Error err = ::OS::get_singleton()->execute(p_path, args, &pipe, &exitcode, p_read_stderr, nullptr, p_open_console);
-	// Default array should never be modified, it causes the hash of the method to change.
-	if (!ClassDB::is_default_array_arg(r_output)) {
-		r_output.push_back(pipe);
-	}
-	if (err != OK) {
-		return -1;
-	}
-	return exitcode;
-}
-
-Dictionary OS::execute_with_pipe(const String &p_path, const Vector<String> &p_arguments, bool p_blocking) {
-	List<String> args;
-	for (const String &arg : p_arguments) {
-		args.push_back(arg);
-	}
-	return ::OS::get_singleton()->execute_with_pipe(p_path, args, p_blocking);
-}
-
-int OS::create_instance(const Vector<String> &p_arguments) {
-	List<String> args;
-	for (const String &arg : p_arguments) {
-		args.push_back(arg);
-	}
-	::OS::ProcessID pid = 0;
-	Error err = ::OS::get_singleton()->create_instance(args, &pid);
-	if (err != OK) {
-		return -1;
-	}
-	return pid;
-}
-
-Error OS::open_with_program(const String &p_program_path, const Vector<String> &p_paths) {
-	List<String> paths;
-	for (const String &path : p_paths) {
-		paths.push_back(path);
-	}
-	return ::OS::get_singleton()->open_with_program(p_program_path, paths);
-}
-
-int OS::create_process(const String &p_path, const Vector<String> &p_arguments, bool p_open_console) {
-	List<String> args;
-	for (const String &arg : p_arguments) {
-		args.push_back(arg);
-	}
-	::OS::ProcessID pid = 0;
-	Error err = ::OS::get_singleton()->create_process(p_path, args, &pid, p_open_console);
-	if (err != OK) {
-		return -1;
-	}
-	return pid;
-}
-
-Error OS::kill(int p_pid) {
-	return ::OS::get_singleton()->kill(p_pid);
-}
-
 bool OS::is_process_running(int p_pid) const {
 	return ::OS::get_singleton()->is_process_running(p_pid);
 }
@@ -476,14 +394,6 @@ bool OS::has_environment(const String &p_var) const {
 
 String OS::get_environment(const String &p_var) const {
 	return ::OS::get_singleton()->get_environment(p_var);
-}
-
-void OS::set_environment(const String &p_var, const String &p_value) const {
-	::OS::get_singleton()->set_environment(p_var, p_value);
-}
-
-void OS::unset_environment(const String &p_var) const {
-	::OS::get_singleton()->unset_environment(p_var);
 }
 
 String OS::get_name() const {
@@ -776,22 +686,12 @@ void OS::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_stdout_type"), &OS::get_stdout_type);
 	ClassDB::bind_method(D_METHOD("get_stderr_type"), &OS::get_stderr_type);
 
-	ClassDB::bind_method(D_METHOD("execute", "path", "arguments", "output", "read_stderr", "open_console"), &OS::execute, DEFVAL_ARRAY, DEFVAL(false), DEFVAL(false));
-	ClassDB::bind_method(D_METHOD("execute_with_pipe", "path", "arguments", "blocking"), &OS::execute_with_pipe, DEFVAL(true));
-	ClassDB::bind_method(D_METHOD("create_process", "path", "arguments", "open_console"), &OS::create_process, DEFVAL(false));
-	ClassDB::bind_method(D_METHOD("create_instance", "arguments"), &OS::create_instance);
-	ClassDB::bind_method(D_METHOD("open_with_program", "program_path", "paths"), &OS::open_with_program);
-	ClassDB::bind_method(D_METHOD("kill", "pid"), &OS::kill);
-	ClassDB::bind_method(D_METHOD("shell_open", "uri"), &OS::shell_open);
-	ClassDB::bind_method(D_METHOD("shell_show_in_file_manager", "file_or_dir_path", "open_folder"), &OS::shell_show_in_file_manager, DEFVAL(true));
 	ClassDB::bind_method(D_METHOD("is_process_running", "pid"), &OS::is_process_running);
 	ClassDB::bind_method(D_METHOD("get_process_exit_code", "pid"), &OS::get_process_exit_code);
 	ClassDB::bind_method(D_METHOD("get_process_id"), &OS::get_process_id);
 
 	ClassDB::bind_method(D_METHOD("has_environment", "variable"), &OS::has_environment);
 	ClassDB::bind_method(D_METHOD("get_environment", "variable"), &OS::get_environment);
-	ClassDB::bind_method(D_METHOD("set_environment", "variable", "value"), &OS::set_environment);
-	ClassDB::bind_method(D_METHOD("unset_environment", "variable"), &OS::unset_environment);
 
 	ClassDB::bind_method(D_METHOD("get_name"), &OS::get_name);
 	ClassDB::bind_method(D_METHOD("get_distribution_name"), &OS::get_distribution_name);
