@@ -31,6 +31,7 @@
 #include "file_access.h"
 #include "file_access.compat.inc"
 
+#include "core/config/mod_security.h"
 #include "core/config/project_settings.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/file_access_compressed.h"
@@ -51,6 +52,11 @@ Ref<FileAccess> FileAccess::create(AccessType p_access) {
 }
 
 bool FileAccess::exists(const String &p_name) {
+	// Check mod security restrictions
+	if (!ModSecurity::is_path_allowed(p_name)) {
+		ERR_FAIL_V_MSG(false, ModSecurity::get_access_denied_message(p_name));
+	}
+
 	if (PackedData::get_singleton() && !PackedData::get_singleton()->is_disabled() && PackedData::get_singleton()->has_path(p_name)) {
 		return true;
 	}
@@ -157,6 +163,11 @@ Error FileAccess::reopen(const String &p_path, int p_mode_flags) {
 }
 
 Ref<FileAccess> FileAccess::open(const String &p_path, int p_mode_flags, Error *r_error) {
+	// Check mod security restrictions
+	if (!ModSecurity::is_path_allowed(p_path)) {
+		ERR_FAIL_V_MSG(Ref<FileAccess>(), ModSecurity::get_access_denied_message(p_path));
+	}
+
 	//try packed data first
 
 	Ref<FileAccess> ret;

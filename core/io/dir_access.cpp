@@ -30,6 +30,7 @@
 
 #include "dir_access.h"
 
+#include "core/config/mod_security.h"
 #include "core/config/project_settings.h"
 #include "core/io/file_access.h"
 #include "core/os/os.h"
@@ -236,6 +237,11 @@ Ref<DirAccess> DirAccess::create_for_path(const String &p_path) {
 }
 
 Ref<DirAccess> DirAccess::open(const String &p_path, Error *r_error) {
+	// Check mod security restrictions
+	if (!ModSecurity::is_path_allowed(p_path)) {
+		ERR_FAIL_V_MSG(nullptr, ModSecurity::get_access_denied_message(p_path));
+	}
+
 	Ref<DirAccess> da = create_for_path(p_path);
 	ERR_FAIL_COND_V_MSG(da.is_null(), nullptr, vformat("Cannot create DirAccess for path '%s'.", p_path));
 	Error err = da->change_dir(p_path);
@@ -559,6 +565,11 @@ Error DirAccess::copy_dir(const String &p_from, String p_to, int p_chmod_flags, 
 }
 
 bool DirAccess::exists(const String &p_dir) {
+	// Check mod security restrictions
+	if (!ModSecurity::is_path_allowed(p_dir)) {
+		ERR_FAIL_V_MSG(false, ModSecurity::get_access_denied_message(p_dir));
+	}
+
 	Ref<DirAccess> da = DirAccess::create_for_path(p_dir);
 	return da->change_dir(p_dir) == OK;
 }
