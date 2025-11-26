@@ -323,7 +323,7 @@ ProjectConverter3To4::ProjectConverter3To4(int p_maximum_file_size_kb, int p_max
 // Function responsible for converting project.
 bool ProjectConverter3To4::convert() {
 	print_line("Starting conversion.");
-	uint64_t conversion_start_time = Time::get_singleton()->get_ticks_msec();
+	uint64_t conversion_start_time = OS::get_singleton()->get_ticks_msec();
 
 	RegExContainer reg_container = RegExContainer();
 
@@ -382,7 +382,7 @@ bool ProjectConverter3To4::convert() {
 
 		Vector<String> reason;
 		bool is_ignored = false;
-		uint64_t start_time = Time::get_singleton()->get_ticks_msec();
+		uint64_t start_time = OS::get_singleton()->get_ticks_msec();
 
 		if (file_name.ends_with(".shader")) {
 			DirAccess::remove_file_or_error(file_name.trim_prefix("res://"));
@@ -494,7 +494,7 @@ bool ProjectConverter3To4::convert() {
 			is_ignored = true;
 		}
 
-		uint64_t end_time = Time::get_singleton()->get_ticks_msec();
+		uint64_t end_time = OS::get_singleton()->get_ticks_msec();
 		if (is_ignored) {
 			String end_message = vformat("    Checking file took %d ms.", end_time - start_time);
 			print_line(end_message);
@@ -522,7 +522,7 @@ bool ProjectConverter3To4::convert() {
 		}
 	}
 	print_line(vformat("Conversion ended - all files(%d), converted files: (%d), not converted files: (%d).", collected_files.size(), converted_files, collected_files.size() - converted_files));
-	uint64_t conversion_end_time = Time::get_singleton()->get_ticks_msec();
+	uint64_t conversion_end_time = OS::get_singleton()->get_ticks_msec();
 	print_line(vformat("Conversion of all files took %10.3f seconds.", (conversion_end_time - conversion_start_time) / 1000.0));
 	return true;
 }
@@ -530,7 +530,7 @@ bool ProjectConverter3To4::convert() {
 // Function responsible for validating project conversion.
 bool ProjectConverter3To4::validate_conversion() {
 	print_line("Starting checking if project conversion can be done.");
-	uint64_t conversion_start_time = Time::get_singleton()->get_ticks_msec();
+	uint64_t conversion_start_time = OS::get_singleton()->get_ticks_msec();
 
 	RegExContainer reg_container = RegExContainer();
 
@@ -580,7 +580,7 @@ bool ProjectConverter3To4::validate_conversion() {
 		Vector<String> changed_elements;
 		Vector<String> reason;
 		bool is_ignored = false;
-		uint64_t start_time = Time::get_singleton()->get_ticks_msec();
+		uint64_t start_time = OS::get_singleton()->get_ticks_msec();
 
 		if (file_name.ends_with(".shader")) {
 			reason.append("\tFile extension will be renamed from \"shader\" to \"gdshader\".");
@@ -666,7 +666,7 @@ bool ProjectConverter3To4::validate_conversion() {
 			is_ignored = true;
 		}
 
-		uint64_t end_time = Time::get_singleton()->get_ticks_msec();
+		uint64_t end_time = OS::get_singleton()->get_ticks_msec();
 		String end_message = vformat("    Checking file took %10.3f ms.", (end_time - start_time) / 1000.0);
 		if (ignored_lines != 0) {
 			end_message += vformat(" Ignored %d lines, because their length exceeds maximum allowed characters - %d.", ignored_lines, maximum_line_length);
@@ -687,7 +687,7 @@ bool ProjectConverter3To4::validate_conversion() {
 	}
 
 	print_line(vformat("Checking for valid conversion ended - all files(%d), files which would be converted(%d), files which would not be converted(%d).", collected_files.size(), converted_files, collected_files.size() - converted_files));
-	uint64_t conversion_end_time = Time::get_singleton()->get_ticks_msec();
+	uint64_t conversion_end_time = OS::get_singleton()->get_ticks_msec();
 	print_line(vformat("Conversion of all files took %10.3f seconds.", (conversion_end_time - conversion_start_time) / 1000.0));
 	return true;
 }
